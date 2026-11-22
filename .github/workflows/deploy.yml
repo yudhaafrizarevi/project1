@@ -1,0 +1,50 @@
+name: TaskFlow CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: taskflow-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and Deploy to EC2
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Sync application files
+        run: |
+          rsync -a --delete \
+            --exclude='.git/' \
+            --exclude='.env.prod' \
+            --exclude='backend/.env' \
+            ./ /home/ubuntu/project1/
+
+      - name: Build and deploy
+        working-directory: /home/ubuntu/project1
+        run: |
+          docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build --remove-orphans
+
+      - name: Run migrations
+        working-directory: /home/ubuntu/project1
+        run: |
+          docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T app php artisan migrate --force
+
+      - name: Laravel optimization
+        working-directory: /home/ubuntu/project1
+        run: |
+          docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T app php artisan optimize
+
+      - name: Health check
+        run: |
+          curl --fail --retry 10 --retry-delay 5 --retry-connrefused http://127.0.0.1/up
