@@ -24,7 +24,7 @@ jobs:
 
       - name: Sync application files
         run: |
-          rsync -a --delete \
+          rsync -a \
             --exclude='.git/' \
             --exclude='.env.prod' \
             --exclude='backend/.env' \
