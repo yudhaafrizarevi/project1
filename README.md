@@ -1,245 +1,154 @@
-# TaskFlow – Full-Stack Cloud Deployment
 
-**TaskFlow** adalah aplikasi manajemen tugas berbasis Kanban Board yang dikembangkan menggunakan Laravel dan React. Proyek ini merupakan implementasi deployment aplikasi full-stack ke AWS EC2 dengan Docker, CI/CD otomatis, konfigurasi keamanan, serta monitoring infrastruktur.
+# 🚀 TaskFlow
+### Full-Stack Cloud Deployment | DevOps Portfolio Project
 
-## 1. Project Overview
+<p align="center">
+  <b>A Containerized Task Management Application Deployed on AWS EC2</b>
+</p>
 
-TaskFlow merupakan aplikasi manajemen tugas yang memungkinkan pengguna mengelola pekerjaan melalui beberapa tahapan, mulai dari To Do, In Progress, hingga Done.
+<p align="center">
+  <img src="https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
+  <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+  <img src="https://img.shields.io/badge/AWS-EC2-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white" />
+</p>
 
-Proyek ini tidak hanya berfokus pada pengembangan aplikasi, tetapi juga implementasi infrastruktur cloud, containerization, automation, monitoring, dan deployment.
+---
 
-**Fitur utama:**
-- Registrasi dan autentikasi pengguna.
-- Membuat, melihat, mengubah, dan menghapus Board.
-- CRUD (Create, Read, Update, Delete) Task.
-- Drag and drop Task antar-kolom Kanban.
-- REST API menggunakan Laravel.
-- Deployment aplikasi menggunakan Docker Compose.
+## 📌 About The Project
 
-## 2. Technology Stack
+**TaskFlow** is a full-stack task management application built with Laravel and React, featuring a Kanban Board interface for organizing tasks efficiently.
 
-| Komponen | Teknologi |
+This project demonstrates the implementation of cloud infrastructure and DevOps practices, including containerization, automated CI/CD deployment, server security, and infrastructure monitoring.
+
+### ✨ Key Features
+
+- User registration and authentication.
+- Create, update, and delete Boards.
+- Task management with CRUD operations.
+- Drag-and-drop task management.
+- REST API powered by Laravel.
+- Containerized application deployment.
+
+## 🛠️ Technology Stack
+
+| Category | Technology |
 |---|---|
 | Backend | PHP 8.3, Laravel 12 |
 | Frontend | React 19, Vite |
 | Database | MySQL 8.0 |
 | Web Server | Nginx |
 | Containerization | Docker, Docker Compose |
-| Cloud Provider | Amazon Web Services (AWS) |
-| Compute | Amazon EC2 |
+| Cloud Platform | AWS EC2 |
 | CI/CD | GitHub Actions |
-| CI/CD Runner | GitHub Self-Hosted Runner |
+| CI/CD Runner | Self-Hosted Runner |
 | Monitoring | Prometheus, Grafana |
-| Infrastructure Monitoring | Node Exporter, cAdvisor |
+| Infrastructure Metrics | Node Exporter, cAdvisor |
 | Operating System | Ubuntu Server |
 
-## 3. Application Preview
+## 🖥️ Application Preview
 
 ### Login Page
 
-Halaman autentikasi untuk pengguna TaskFlow.
+User authentication interface for accessing TaskFlow.
 
 ![TaskFlow Login](docs/loginpage.png)
 
 ### Dashboard
 
-Halaman utama untuk melihat dan mengelola Board.
+Main dashboard for managing boards and tasks.
 
 ![TaskFlow Dashboard](docs/dashboard.png)
 
-### Kanban Board
+## ☁️ Cloud Infrastructure – AWS EC2
 
-Pengelolaan tugas berdasarkan status pekerjaan menggunakan Kanban Board.
+TaskFlow is deployed on an AWS EC2 instance running Ubuntu Server.
 
-> Tambahkan screenshot Kanban Board di bagian ini setelah tersedia.
+Infrastructure implementation includes:
 
-## 4. System Architecture
-
-TaskFlow menggunakan arsitektur containerized full-stack application yang berjalan pada AWS EC2.
-
-### Application Architecture
-
-```text
-                    Internet
-                       |
-                       v
-                  AWS EC2
-                       |
-                       v
-                    Nginx
-                 Reverse Proxy
-                       |
-             +---------+---------+
-             |                   |
-             v                   v
-       React Frontend       Laravel API
-       Nginx Container      PHP-FPM Container
-                                 |
-                                 v
-                            MySQL 8.0
-                           DB Container
-```
-
-### Monitoring Architecture
-
-```text
-                 AWS EC2 Server
-                       |
-             +---------+---------+
-             |                   |
-             v                   v
-       Node Exporter          cAdvisor
-       Host Metrics        Docker Metrics
-             |                   |
-             +---------+---------+
-                       |
-                       v
-                  Prometheus
-                       |
-                       v
-                    Grafana
-                  Dashboard
-```
-
-Monitoring dijalankan menggunakan Docker Compose terpisah dari application stack.
-
-## 5. Cloud Infrastructure – AWS EC2
-
-Aplikasi TaskFlow di-deploy pada Amazon EC2 dengan Ubuntu Server sebagai sistem operasi.
-
-Implementasi infrastruktur meliputi:
-
-- Provisioning EC2 instance.
-- Konfigurasi Security Group.
-- Konfigurasi UFW Firewall.
-- Deployment Docker dan Docker Compose.
-- Konfigurasi Nginx sebagai reverse proxy.
-- Pemisahan service aplikasi dan database.
-- Konfigurasi swap untuk membantu pengelolaan memori server.
-
-### Screenshot AWS EC2
+- EC2 instance provisioning.
+- Security Group configuration.
+- UFW firewall configuration.
+- Docker and Docker Compose installation.
+- Nginx reverse proxy configuration.
 
 ![AWS EC2](docs/aws-ec2.png)
 
-## 6. Docker Containerization
+## 🐳 Docker Containerization
 
-Seluruh komponen aplikasi dijalankan menggunakan Docker Compose.
+The application uses Docker Compose to run its production services independently.
 
-Container production:
-
-| Container | Fungsi |
+| Container | Responsibility |
 |---|---|
-| kanban_nginx_prod | Reverse proxy dan web entry point |
-| kanban_app_prod | Laravel PHP-FPM |
-| kanban_db_prod | MySQL database |
-| kanban_frontend_prod | React frontend |
-
-Database MySQL berjalan pada jaringan internal Docker dan tidak diekspos langsung ke internet.
-
-### Docker Containers
+| `kanban_nginx_prod` | Reverse proxy |
+| `kanban_app_prod` | Laravel backend |
+| `kanban_db_prod` | MySQL database |
+| `kanban_frontend_prod` | React frontend |
 
 ![Docker Containers](docs/docker-container.png)
 
-### Production Deployment
+## ⚙️ CI/CD – GitHub Actions
 
-File konfigurasi utama:
-
-- `docker-compose.prod.yml`
-- `backend/Dockerfile.prod`
-- `frontend/Dockerfile.prod`
-- `nginx/production/default.conf`
-
-## 7. CI/CD Pipeline – GitHub Actions
-
-TaskFlow menggunakan GitHub Actions dengan Self-Hosted Runner yang berjalan pada EC2.
-
-Pipeline dijalankan ketika terdapat push ke branch `main` atau melalui manual workflow dispatch.
+Automated CI/CD pipeline using GitHub Actions and a Self-Hosted Runner on AWS EC2.
 
 ### Pipeline Workflow
 
 ```text
-          Developer Push
-                |
-                v
-          GitHub Actions
-                |
-                v
-             Checkout
-                |
-                v
-        Backend Docker Build
-                |
-                v
-          Backend Testing
-                |
-                v
-        Frontend Lint & Build
-                |
-                v
-         Sync Application
-                |
-                v
-        Docker Compose Build
-                |
-                v
-          Database Migration
-                |
-                v
-         Laravel Optimization
-                |
-                v
-            Health Check
-                |
-                v
-          Deployment Success
+Developer Push
+      |
+      v
+GitHub Actions
+      |
+      v
+Checkout Source Code
+      |
+      v
+Backend Build & Testing
+      |
+      v
+Frontend Lint & Build
+      |
+      v
+Sync Application to EC2
+      |
+      v
+Docker Compose Build
+      |
+      v
+Database Migration
+      |
+      v
+Laravel Optimization
+      |
+      v
+Health Check
+      |
+      v
+Deployment Success
 ```
 
-Deployment hanya dilanjutkan apabila tahap testing berhasil.
+Deployment proceeds only after the testing stages succeed.
 
-### GitHub Actions Result
+### Pipeline Execution
 
 ![GitHub Actions](docs/github-action.png)
 
-File workflow:
+**Workflow File:** `.github/workflows/deploy.yml`
 
-`.github/workflows/deploy.yml`
+**View Pipeline:** [GitHub Actions – TaskFlow](https://github.com/yudhaafrizarevi/project1/actions)
 
-## 8. Automated Testing
+## 📊 Monitoring & Observability
 
-Pipeline CI/CD menjalankan pengujian backend dan frontend sebelum deployment.
+Infrastructure monitoring is implemented using Prometheus and Grafana.
 
-### Backend Testing
-
-- Menggunakan Pest untuk Laravel.
-- Menggunakan SQLite in-memory untuk environment testing.
-- Pengujian berjalan di dalam Docker test image.
-- Testing tidak menggunakan database production.
-
-Hasil pengujian terakhir:
-
-**2 tests passed (2 assertions).**
-
-### Frontend Testing
-
-- ESLint untuk pemeriksaan kode.
-- Vite untuk proses production build.
-
-Kedua tahap harus berhasil sebelum deployment dilakukan.
-
-## 9. Monitoring & Logging
-
-TaskFlow menggunakan Prometheus dan Grafana untuk monitoring infrastruktur.
-
-### Monitoring Components
-
-| Komponen | Fungsi |
+| Component | Purpose |
 |---|---|
-| Prometheus | Mengumpulkan dan menyimpan metrics |
-| Grafana | Visualisasi metrics |
-| Node Exporter | Monitoring resource Linux |
-| cAdvisor | Monitoring Docker containers |
+| Prometheus | Metrics collection and storage |
+| Grafana | Metrics visualization |
+| Node Exporter | Linux server monitoring |
+| cAdvisor | Docker container monitoring |
 
-### Metrics yang Dimonitor
+### Monitored Metrics
 
 - CPU Usage
 - Memory Usage
@@ -247,37 +156,23 @@ TaskFlow menggunakan Prometheus dan Grafana untuk monitoring infrastruktur.
 - Network Traffic
 - Docker Container Metrics
 
-Prometheus melakukan pengumpulan metrics dengan interval 15 detik dan retention selama 7 hari.
-
 ### Grafana Dashboard
 
 ![Grafana Dashboard](docs/dashboard_grafana.png)
 
-### Prometheus Configuration
+## 🔐 Security Implementation
 
-File konfigurasi:
+Security measures implemented in the project:
 
-- `monitoring/docker-compose.yml`
-- `monitoring/prometheus/prometheus.yml`
+- AWS Security Group access restrictions.
+- UFW firewall configuration.
+- SSH access restrictions.
+- MySQL database isolated from public internet.
+- Monitoring services restricted to localhost.
+- Production environment variables excluded from GitHub.
+- Laravel debug mode disabled in production.
 
-Data Grafana dan Prometheus disimpan menggunakan Docker named volumes agar tetap persisten ketika container diperbarui.
-
-Monitoring service dibatasi pada localhost server dan tidak diekspos langsung ke internet.
-
-## 10. Security Implementation
-
-Beberapa konfigurasi keamanan yang diterapkan:
-
-- AWS Security Group untuk membatasi akses jaringan.
-- UFW Firewall dengan kebijakan incoming deny.
-- SSH hanya diizinkan dari IP yang diperbolehkan.
-- Database MySQL tidak diekspos ke public internet.
-- Prometheus dan Grafana hanya dapat diakses melalui localhost server.
-- Laravel `APP_DEBUG=false` pada production.
-- File environment dan credential tidak disimpan di GitHub.
-- Testing menggunakan database terpisah dari production.
-
-## 11. Repository Structure
+## 📁 Repository Structure
 
 ```text
 project1/
@@ -285,144 +180,48 @@ project1/
 │   └── workflows/
 │       └── deploy.yml
 ├── backend/
-│   ├── app/
-│   ├── config/
-│   ├── database/
-│   ├── routes/
-│   ├── tests/
-│   ├── Dockerfile
-│   ├── Dockerfile.prod
-│   └── Dockerfile.test
 ├── frontend/
-│   ├── src/
-│   ├── Dockerfile.dev
-│   └── Dockerfile.prod
 ├── nginx/
-│   ├── default.conf
-│   └── production/
-│       └── default.conf
 ├── monitoring/
-│   ├── prometheus/
-│   │   └── prometheus.yml
-│   ├── docker-compose.yml
-│   ├── .env.example
-│   └── README.md
 ├── docs/
-│   └── screenshots/
+│   ├── loginpage.png
+│   ├── dashboard.png
+│   ├── aws-ec2.png
+│   ├── docker-container.png
+│   ├── github-action.png
+│   └── dashboard_grafana.png
 ├── docker-compose.yml
 ├── docker-compose.prod.yml
 └── README.md
 ```
 
-## 12. Deployment Guide
+## 🎯 Learning Outcomes
 
-### Prerequisites
+Through this project, I implemented and explored:
 
-- Ubuntu Server atau Linux.
-- Docker Engine.
-- Docker Compose Plugin.
-- Git.
-- AWS EC2 atau server Linux lainnya.
-
-### Clone Repository
-
-```bash
-git clone https://github.com/yudhaafrizarevi/project1.git
-
-cd project1
-```
-
-Repository ini menggunakan konfigurasi production dan environment variables yang harus disiapkan secara terpisah.
-
-### Environment Configuration
-
-Siapkan file `.env.prod` sesuai konfigurasi production.
-
-Jangan menggunakan credential production yang dibagikan melalui repository publik.
-
-### Build and Run
-
-```bash
-docker compose \
-  --env-file .env.prod \
-  -f docker-compose.prod.yml \
-  up -d --build
-```
-
-### Database Migration
-
-```bash
-docker compose \
-  --env-file .env.prod \
-  -f docker-compose.prod.yml \
-  exec app php artisan migrate --force
-```
-
-### Check Container Status
-
-```bash
-docker compose \
-  --env-file .env.prod \
-  -f docker-compose.prod.yml \
-  ps
-```
-
-### Health Check
-
-```bash
-curl http://127.0.0.1/up
-```
-
-## 13. Monitoring Deployment
-
-Untuk menjalankan monitoring secara terpisah:
-
-```bash
-cd monitoring
-
-cp .env.example .env
-```
-
-Atur password Grafana pada file `.env`, kemudian jalankan:
-
-```bash
-docker compose up -d
-```
-
-Periksa container:
-
-```bash
-docker compose ps
-```
-
-Akses service secara lokal pada server:
-
-- Prometheus: `http://127.0.0.1:9090`
-- Grafana: `http://127.0.0.1:3000`
-
-Untuk mengakses dari komputer lokal, gunakan SSH tunnel.
-
-## 14. Project Repository
-
-GitHub Repository:
-
-https://github.com/yudhaafrizarevi/project1
-
-## 15. Project Objectives & Learning Outcomes
-
-Melalui proyek ini, implementasi yang dilakukan mencakup:
-
-- Full-stack application deployment.
-- Cloud infrastructure provisioning menggunakan AWS EC2.
-- Containerization menggunakan Docker.
-- Reverse proxy menggunakan Nginx.
-- Automated CI/CD menggunakan GitHub Actions.
-- Backend dan frontend automated testing.
-- Infrastructure monitoring menggunakan Prometheus dan Grafana.
-- Basic server hardening dan network security.
-- Deployment automation dan application health check.
+- Full-stack application deployment on AWS.
+- Linux server administration.
+- Docker containerization.
+- Nginx reverse proxy.
+- CI/CD automation using GitHub Actions.
+- Automated backend and frontend testing.
+- Infrastructure monitoring with Prometheus and Grafana.
+- Basic cloud infrastructure security.
 
 ---
 
-**Project:** TaskFlow – Full-Stack Cloud Deployment  
-**Focus:** Cloud Computing, DevOps, Infrastructure Engineering, CI/CD & Automation
+## 🔗 Project Links
+
+| Resource | Link |
+|---|---|
+| GitHub Repository | [TaskFlow Repository](https://github.com/yudhaafrizarevi/project1) |
+| CI/CD Pipeline | [GitHub Actions](https://github.com/yudhaafrizarevi/project1/actions) |
+| Application | Temporarily unavailable (AWS EC2 instance stopped) |
+
+---
+
+<p align="center">
+  <b>TaskFlow – Full-Stack Cloud Deployment</b>
+  <br/>
+  Cloud Computing • DevOps • Infrastructure Engineering • CI/CD Automation
+</p>
