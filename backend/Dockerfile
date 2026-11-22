@@ -1,3 +1,4 @@
+
 FROM php:8.3-fpm
 
 RUN apt-get update && apt-get install -y \
@@ -5,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
+    libicu-dev \
     locales \
     zip \
     jpegoptim optipng pngquant gifsicle \
@@ -15,14 +17,17 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libonig-dev \
     libpq-dev \
-    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl \
-    && docker-php-ext-install gd
+    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl intl \
+    && docker-php-ext-install gd \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
 COPY . .
+
 RUN chown -R www-data:www-data /var/www
 RUN chmod -R 775 /var/www/storage
 
