@@ -1,22 +1,30 @@
-import {useState, useEffect} from 'react';
+
+import { useState, useEffect } from 'react';
 import apiClient from '../api/axios';
 
-export default function EditTaskModal({task, onClose, onTaskUpdated}) {
-  if (!task) return null;
-
-  const [title, setTitle] = useState(task.title);
-  const [description, setDescription] = useState(task.description || '');
+export default function EditTaskModal({
+  task,
+  onClose,
+  onTaskUpdated
+}) {
+  const [title, setTitle] = useState(task?.title ?? '');
+  const [description, setDescription] = useState(task?.description ?? '');
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    setTitle(task.title);
-    setDescription(task.description || '');
-    setError(null);
+    if (task) {
+      setTitle(task.title);
+      setDescription(task.description || '');
+      setError(null);
+    }
   }, [task]);
+
+  if (!task) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setIsSaving(true);
     setError(null);
 
@@ -26,11 +34,16 @@ export default function EditTaskModal({task, onClose, onTaskUpdated}) {
     };
 
     try {
-      const response = await apiClient.put(`/tasks/${task.id}`, updatedData);
+      const response = await apiClient.put(
+        `/tasks/${task.id}`,
+        updatedData
+      );
+
       onTaskUpdated(response.data);
       onClose();
     } catch (err) {
-      console.error("Failed to update task:", err);
+      console.error('Failed to update task:', err);
+
       if (err.response && err.response.status === 422) {
         setError(err.response.data.errors.title[0]);
       } else {
@@ -42,13 +55,19 @@ export default function EditTaskModal({task, onClose, onTaskUpdated}) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+      onClick={onClose}
+    >
       <div
         className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 mx-4"
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">Edit Task</h2>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Edit Task
+          </h2>
+
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 text-3xl"
@@ -60,9 +79,13 @@ export default function EditTaskModal({task, onClose, onTaskUpdated}) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-gray-700"
+            >
               Title
             </label>
+
             <input
               id="title"
               type="text"
@@ -72,10 +95,15 @@ export default function EditTaskModal({task, onClose, onTaskUpdated}) {
               required
             />
           </div>
+
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700"
+            >
               Description
             </label>
+
             <textarea
               id="description"
               value={description}
@@ -84,7 +112,11 @@ export default function EditTaskModal({task, onClose, onTaskUpdated}) {
               className="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          {error && (
+            <p className="text-sm text-red-600">{error}</p>
+          )}
+
           <div className="flex justify-end space-x-3 pt-2">
             <button
               type="button"
@@ -93,6 +125,7 @@ export default function EditTaskModal({task, onClose, onTaskUpdated}) {
             >
               Cancel
             </button>
+
             <button
               type="submit"
               disabled={isSaving}

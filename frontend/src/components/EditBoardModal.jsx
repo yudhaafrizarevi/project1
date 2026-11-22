@@ -1,29 +1,49 @@
-import { useState, useEffect } from 'react';
 
-export default function EditBoardModal({ board, isOpen, onClose, onBoardUpdated, isUpdating }) {
+import { useState } from 'react';
+
+export default function EditBoardModal(props) {
+  const { board, isOpen } = props;
+
   if (!isOpen || !board) return null;
 
-  const [name, setName] = useState(board.name);
+  return (
+    <EditBoardModalContent
+      key={`${board.id}-${board.name}`}
+      {...props}
+    />
+  );
+}
 
-  useEffect(() => {
-    setName(board.name);
-  }, [board]);
+function EditBoardModalContent({
+  board,
+  onClose,
+  onBoardUpdated,
+  isUpdating
+}) {
+  const [name, setName] = useState(board.name);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!name.trim()) return;
 
     await onBoardUpdated(name);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+      onClick={onClose}
+    >
       <div
         className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 mx-4"
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">Edit Board</h2>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Edit Board
+          </h2>
+
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 text-3xl"
@@ -35,9 +55,13 @@ export default function EditBoardModal({ board, isOpen, onClose, onBoardUpdated,
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="board-name" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="board-name"
+              className="block text-sm font-medium text-gray-700"
+            >
               Board Name
             </label>
+
             <input
               id="board-name"
               type="text"
@@ -57,6 +81,7 @@ export default function EditBoardModal({ board, isOpen, onClose, onBoardUpdated,
             >
               Cancel
             </button>
+
             <button
               type="submit"
               disabled={isUpdating}

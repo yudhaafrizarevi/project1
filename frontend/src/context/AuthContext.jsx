@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect } from 'react';
 import apiClient from '../api/axios';
 
@@ -11,18 +12,20 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const checkUserOnLoad = async () => {
       const storedToken = localStorage.getItem('token');
+
       if (storedToken) {
         try {
-          apiClient.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+          apiClient.defaults.headers.common['Authorization'] =
+            `Bearer ${storedToken}`;
 
           const response = await apiClient.get('/user');
 
           setUser(response.data.user);
           setToken(storedToken);
-
-        } catch (error) {
+        } catch {
           localStorage.removeItem('token');
           delete apiClient.defaults.headers.common['Authorization'];
+
           setUser(null);
           setToken(null);
         }
@@ -35,16 +38,28 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
-    const response = await apiClient.post('/login', { email, password });
+    const response = await apiClient.post('/login', {
+      email,
+      password
+    });
+
     const { token, user } = response.data;
 
     setToken(token);
     setUser(user);
+
     localStorage.setItem('token', token);
-    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+    apiClient.defaults.headers.common['Authorization'] =
+      `Bearer ${token}`;
   };
 
-  const register = async (name, email, password, password_confirmation) => {
+  const register = async (
+    name,
+    email,
+    password,
+    password_confirmation
+  ) => {
     const response = await apiClient.post('/register', {
       name,
       email,
@@ -56,20 +71,24 @@ export function AuthProvider({ children }) {
 
     setToken(token);
     setUser(user);
+
     localStorage.setItem('token', token);
-    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+    apiClient.defaults.headers.common['Authorization'] =
+      `Bearer ${token}`;
   };
 
   const logout = async () => {
     try {
-      // 1. Try to call backend
       await apiClient.post('/logout');
     } catch (error) {
-      console.error("Backend logout failed:", error);
+      console.error('Backend logout failed:', error);
     } finally {
       setUser(null);
       setToken(null);
+
       localStorage.removeItem('token');
+
       delete apiClient.defaults.headers.common['Authorization'];
     }
   };
@@ -90,6 +109,7 @@ export function AuthProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   return useContext(AuthContext);
 };
