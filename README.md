@@ -1,139 +1,428 @@
-# TaskFlow: A Full-Stack Kanban Board
+# TaskFlow – Full-Stack Cloud Deployment
 
-A Trello-like Kanban board application built as a full-stack portfolio project. It features a **Laravel 12** REST API backend, a **React (Vite)** frontend, and **MySQL**, all fully containerized with **Docker Compose**.
+**TaskFlow** adalah aplikasi manajemen tugas berbasis Kanban Board yang dikembangkan menggunakan Laravel dan React. Proyek ini merupakan implementasi deployment aplikasi full-stack ke AWS EC2 dengan Docker, CI/CD otomatis, konfigurasi keamanan, serta monitoring infrastruktur.
 
----
+## 1. Project Overview
 
-## 🚀 Technology Stack
+TaskFlow merupakan aplikasi manajemen tugas yang memungkinkan pengguna mengelola pekerjaan melalui beberapa tahapan, mulai dari To Do, In Progress, hingga Done.
 
-* **Backend:** PHP 8.3, Laravel 12
-* **Frontend:** React 18, Vite.js
-* **Database:** MySQL 8.0
-* **Web Server:** Nginx
-* **Containerization:** Docker & Docker Compose
+Proyek ini tidak hanya berfokus pada pengembangan aplikasi, tetapi juga implementasi infrastruktur cloud, containerization, automation, monitoring, dan deployment.
 
-## 📖 API Documentation (Swagger)
+**Fitur utama:**
+- Registrasi dan autentikasi pengguna.
+- Membuat, melihat, mengubah, dan menghapus Board.
+- CRUD (Create, Read, Update, Delete) Task.
+- Drag and drop Task antar-kolom Kanban.
+- REST API menggunakan Laravel.
+- Deployment aplikasi menggunakan Docker Compose.
 
-This project uses OpenAPI (Swagger) for live API documentation. The documentation is generated automatically from annotations in the source code.
+## 2. Technology Stack
 
-Once the containers are running, you can view the interactive API documentation (Swagger UI) in your browser:
+| Komponen | Teknologi |
+|---|---|
+| Backend | PHP 8.3, Laravel 12 |
+| Frontend | React 19, Vite |
+| Database | MySQL 8.0 |
+| Web Server | Nginx |
+| Containerization | Docker, Docker Compose |
+| Cloud Provider | Amazon Web Services (AWS) |
+| Compute | Amazon EC2 |
+| CI/CD | GitHub Actions |
+| CI/CD Runner | GitHub Self-Hosted Runner |
+| Monitoring | Prometheus, Grafana |
+| Infrastructure Monitoring | Node Exporter, cAdvisor |
+| Operating System | Ubuntu Server |
 
-* **Swagger UI:** `http://localhost:8080/api/documentation`
+## 3. Application Preview
 
-You can test all API endpoints directly from this interface.
+### Login Page
 
-## ✨ Key Features
+Halaman autentikasi untuk pengguna TaskFlow.
 
-* User authentication (Registration, Login).
-* Create, Read, Update, Delete (CRUD) operations for Boards.
-* CRUD operations for Task Cards.
-* Drag-and-drop functionality for tasks between columns (To-Do, In Progress, Done).
-* RESTful API.
+![TaskFlow Login](docs/loginpage.png)
 
----
+### Dashboard
 
-## 📦 Getting Started (Manual Setup)
+Halaman utama untuk melihat dan mengelola Board.
 
-This project is containerized, but requires a few manual setup steps after the first launch.
+![TaskFlow Dashboard](docs/dashboard.png)
+
+### Kanban Board
+
+Pengelolaan tugas berdasarkan status pekerjaan menggunakan Kanban Board.
+
+> Tambahkan screenshot Kanban Board di bagian ini setelah tersedia.
+
+## 4. System Architecture
+
+TaskFlow menggunakan arsitektur containerized full-stack application yang berjalan pada AWS EC2.
+
+### Application Architecture
+
+```text
+                    Internet
+                       |
+                       v
+                  AWS EC2
+                       |
+                       v
+                    Nginx
+                 Reverse Proxy
+                       |
+             +---------+---------+
+             |                   |
+             v                   v
+       React Frontend       Laravel API
+       Nginx Container      PHP-FPM Container
+                                 |
+                                 v
+                            MySQL 8.0
+                           DB Container
+```
+
+### Monitoring Architecture
+
+```text
+                 AWS EC2 Server
+                       |
+             +---------+---------+
+             |                   |
+             v                   v
+       Node Exporter          cAdvisor
+       Host Metrics        Docker Metrics
+             |                   |
+             +---------+---------+
+                       |
+                       v
+                  Prometheus
+                       |
+                       v
+                    Grafana
+                  Dashboard
+```
+
+Monitoring dijalankan menggunakan Docker Compose terpisah dari application stack.
+
+## 5. Cloud Infrastructure – AWS EC2
+
+Aplikasi TaskFlow di-deploy pada Amazon EC2 dengan Ubuntu Server sebagai sistem operasi.
+
+Implementasi infrastruktur meliputi:
+
+- Provisioning EC2 instance.
+- Konfigurasi Security Group.
+- Konfigurasi UFW Firewall.
+- Deployment Docker dan Docker Compose.
+- Konfigurasi Nginx sebagai reverse proxy.
+- Pemisahan service aplikasi dan database.
+- Konfigurasi swap untuk membantu pengelolaan memori server.
+
+### Screenshot AWS EC2
+
+![AWS EC2](docs/aws-ec2.png)
+
+## 6. Docker Containerization
+
+Seluruh komponen aplikasi dijalankan menggunakan Docker Compose.
+
+Container production:
+
+| Container | Fungsi |
+|---|---|
+| kanban_nginx_prod | Reverse proxy dan web entry point |
+| kanban_app_prod | Laravel PHP-FPM |
+| kanban_db_prod | MySQL database |
+| kanban_frontend_prod | React frontend |
+
+Database MySQL berjalan pada jaringan internal Docker dan tidak diekspos langsung ke internet.
+
+### Docker Containers
+
+![Docker Containers](docs/docker-container.png)
+
+### Production Deployment
+
+File konfigurasi utama:
+
+- `docker-compose.prod.yml`
+- `backend/Dockerfile.prod`
+- `frontend/Dockerfile.prod`
+- `nginx/production/default.conf`
+
+## 7. CI/CD Pipeline – GitHub Actions
+
+TaskFlow menggunakan GitHub Actions dengan Self-Hosted Runner yang berjalan pada EC2.
+
+Pipeline dijalankan ketika terdapat push ke branch `main` atau melalui manual workflow dispatch.
+
+### Pipeline Workflow
+
+```text
+          Developer Push
+                |
+                v
+          GitHub Actions
+                |
+                v
+             Checkout
+                |
+                v
+        Backend Docker Build
+                |
+                v
+          Backend Testing
+                |
+                v
+        Frontend Lint & Build
+                |
+                v
+         Sync Application
+                |
+                v
+        Docker Compose Build
+                |
+                v
+          Database Migration
+                |
+                v
+         Laravel Optimization
+                |
+                v
+            Health Check
+                |
+                v
+          Deployment Success
+```
+
+Deployment hanya dilanjutkan apabila tahap testing berhasil.
+
+### GitHub Actions Result
+
+![GitHub Actions](docs/github-action.png)
+
+File workflow:
+
+`.github/workflows/deploy.yml`
+
+## 8. Automated Testing
+
+Pipeline CI/CD menjalankan pengujian backend dan frontend sebelum deployment.
+
+### Backend Testing
+
+- Menggunakan Pest untuk Laravel.
+- Menggunakan SQLite in-memory untuk environment testing.
+- Pengujian berjalan di dalam Docker test image.
+- Testing tidak menggunakan database production.
+
+Hasil pengujian terakhir:
+
+**2 tests passed (2 assertions).**
+
+### Frontend Testing
+
+- ESLint untuk pemeriksaan kode.
+- Vite untuk proses production build.
+
+Kedua tahap harus berhasil sebelum deployment dilakukan.
+
+## 9. Monitoring & Logging
+
+TaskFlow menggunakan Prometheus dan Grafana untuk monitoring infrastruktur.
+
+### Monitoring Components
+
+| Komponen | Fungsi |
+|---|---|
+| Prometheus | Mengumpulkan dan menyimpan metrics |
+| Grafana | Visualisasi metrics |
+| Node Exporter | Monitoring resource Linux |
+| cAdvisor | Monitoring Docker containers |
+
+### Metrics yang Dimonitor
+
+- CPU Usage
+- Memory Usage
+- Disk Usage
+- Network Traffic
+- Docker Container Metrics
+
+Prometheus melakukan pengumpulan metrics dengan interval 15 detik dan retention selama 7 hari.
+
+### Grafana Dashboard
+
+![Grafana Dashboard](docs/dashboard_grafana.png)
+
+### Prometheus Configuration
+
+File konfigurasi:
+
+- `monitoring/docker-compose.yml`
+- `monitoring/prometheus/prometheus.yml`
+
+Data Grafana dan Prometheus disimpan menggunakan Docker named volumes agar tetap persisten ketika container diperbarui.
+
+Monitoring service dibatasi pada localhost server dan tidak diekspos langsung ke internet.
+
+## 10. Security Implementation
+
+Beberapa konfigurasi keamanan yang diterapkan:
+
+- AWS Security Group untuk membatasi akses jaringan.
+- UFW Firewall dengan kebijakan incoming deny.
+- SSH hanya diizinkan dari IP yang diperbolehkan.
+- Database MySQL tidak diekspos ke public internet.
+- Prometheus dan Grafana hanya dapat diakses melalui localhost server.
+- Laravel `APP_DEBUG=false` pada production.
+- File environment dan credential tidak disimpan di GitHub.
+- Testing menggunakan database terpisah dari production.
+
+## 11. Repository Structure
+
+```text
+project1/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml
+├── backend/
+│   ├── app/
+│   ├── config/
+│   ├── database/
+│   ├── routes/
+│   ├── tests/
+│   ├── Dockerfile
+│   ├── Dockerfile.prod
+│   └── Dockerfile.test
+├── frontend/
+│   ├── src/
+│   ├── Dockerfile.dev
+│   └── Dockerfile.prod
+├── nginx/
+│   ├── default.conf
+│   └── production/
+│       └── default.conf
+├── monitoring/
+│   ├── prometheus/
+│   │   └── prometheus.yml
+│   ├── docker-compose.yml
+│   ├── .env.example
+│   └── README.md
+├── docs/
+│   └── screenshots/
+├── docker-compose.yml
+├── docker-compose.prod.yml
+└── README.md
+```
+
+## 12. Deployment Guide
 
 ### Prerequisites
 
-* [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
-* [Git](https://git-scm.com/) installed.
+- Ubuntu Server atau Linux.
+- Docker Engine.
+- Docker Compose Plugin.
+- Git.
+- AWS EC2 atau server Linux lainnya.
 
-### Installation
+### Clone Repository
 
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/viktortoman/portfolio-fullstack-kanban-laravel-react.git](https://github.com/viktortoman/portfolio-fullstack-kanban-laravel-react.git)
-    cd portfolio-fullstack-kanban-laravel-react
-    ```
+```bash
+git clone https://github.com/yudhaafrizarevi/project1.git
 
-2.  **Create the Docker Environment File:**
-    Create a file named `.env` in the project's root directory:
-    ```ini
-    MYSQL_ROOT_PASSWORD=root_secret
-    ```
+cd project1
+```
 
-3.  **Create the Laravel `.env` File:**
-    The backend needs its own configuration.
-    ```bash
-    cp backend/.env.example backend/.env
-    ```
-    Now, edit the `backend/.env` file. Make sure the database settings match the `docker-compose.yml` file:
-    ```ini
-    DB_CONNECTION=mysql
-    DB_HOST=db
-    DB_PORT=3306
-    DB_DATABASE=kanban_db
-    DB_USERNAME=kanban_user
-    DB_PASSWORD=kanban_password
-    ```
+Repository ini menggunakan konfigurasi production dan environment variables yang harus disiapkan secara terpisah.
 
-4.  **Build and Run the Containers:**
-    ```bash
-    docker-compose up -d --build
-    ```
-    **Wait** about 30-60 seconds for the database container to initialize. You can check its status with `docker-compose logs -f db`.
+### Environment Configuration
 
-5.  **Run Manual Setup Commands:**
-    Now that the containers are running, you must run the following setup commands **one by one**:
+Siapkan file `.env.prod` sesuai konfigurasi production.
 
-    ```bash
-    # 1. Install laravel extensions
-    docker-compose exec app composer install
+Jangan menggunakan credential production yang dibagikan melalui repository publik.
 
-    # 2. Generate application key
-    docker-compose exec app php artisan key:generate
+### Build and Run
 
-    # 3. Run migrations
-    docker-compose exec app php artisan migrate
-    ```
+```bash
+docker compose \
+  --env-file .env.prod \
+  -f docker-compose.prod.yml \
+  up -d --build
+```
 
-That's it! The services are now running and configured.
+### Database Migration
 
-## 🌐 Environment & Access Points
+```bash
+docker compose \
+  --env-file .env.prod \
+  -f docker-compose.prod.yml \
+  exec app php artisan migrate --force
+```
 
-Once `docker-compose up` is complete, the environment is ready:
+### Check Container Status
 
-### 1. Frontend (React Client)
+```bash
+docker compose \
+  --env-file .env.prod \
+  -f docker-compose.prod.yml \
+  ps
+```
 
-* **Access:** `http://localhost:5173`
-* **Location:** `/frontend` directory
-* **Details:** This is the Vite development server. It features Hot Module Replacement (HMR), so any changes you make to the React code will be reflected instantly in your browser.
-* **API Proxy:** The Vite server is configured to proxy all requests starting with `/api` to the backend Nginx server (`http://localhost:8080`), avoiding any CORS issues during development.
+### Health Check
 
-### 2. Backend (Laravel API)
+```bash
+curl http://127.0.0.1/up
+```
 
-* **Access:** `http://localhost:8080`
-* **Location:** `/backend` directory
-* **Details:** This is the Nginx server, which routes API requests to the `php-fpm` (Laravel) container. You can access all your API routes here (e.g., `http://localhost:8080/api/users`).
-* **Automation:** The container's entrypoint script (`entrypoint.sh`) handles all setup (composer, migrations, keys).
+## 13. Monitoring Deployment
 
-### 3. Database (MySQL)
+Untuk menjalankan monitoring secara terpisah:
 
-* **Access (Host):** `localhost:3309`
-* **Access (Container):** The Laravel app connects to it via the service name `db`.
-* **Credentials:** As defined in `docker-compose.yml` and `backend/.env`:
-    * **Database:** `kanban_db`
-    * **User:** `root`
-    * **Password:** `root_secret`
-* **Persistence:** Database data is stored in a Docker volume (`kanban_db_data`) so it persists even when you stop or remove the containers.
+```bash
+cd monitoring
+
+cp .env.example .env
+```
+
+Atur password Grafana pada file `.env`, kemudian jalankan:
+
+```bash
+docker compose up -d
+```
+
+Periksa container:
+
+```bash
+docker compose ps
+```
+
+Akses service secara lokal pada server:
+
+- Prometheus: `http://127.0.0.1:9090`
+- Grafana: `http://127.0.0.1:3000`
+
+Untuk mengakses dari komputer lokal, gunakan SSH tunnel.
+
+## 14. Project Repository
+
+GitHub Repository:
+
+https://github.com/yudhaafrizarevi/project1
+
+## 15. Project Objectives & Learning Outcomes
+
+Melalui proyek ini, implementasi yang dilakukan mencakup:
+
+- Full-stack application deployment.
+- Cloud infrastructure provisioning menggunakan AWS EC2.
+- Containerization menggunakan Docker.
+- Reverse proxy menggunakan Nginx.
+- Automated CI/CD menggunakan GitHub Actions.
+- Backend dan frontend automated testing.
+- Infrastructure monitoring menggunakan Prometheus dan Grafana.
+- Basic server hardening dan network security.
+- Deployment automation dan application health check.
 
 ---
 
-### Useful Docker Commands
-
-* **To stop the containers:**
-    ```bash
-    docker-compose down
-    ```
-* **To see the logs (e.g., for the 'app' service):**
-    ```bash
-    docker-compose logs -f app
-    ```
-* **To run an Artisan command:**
-    ```bash
-    docker-compose exec app php artisan <your-command>
-    ```
-  *(Example: `docker-compose exec app php artisan make:controller TaskController --api`)*
+**Project:** TaskFlow – Full-Stack Cloud Deployment  
+**Focus:** Cloud Computing, DevOps, Infrastructure Engineering, CI/CD & Automation
